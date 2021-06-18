@@ -1,1 +1,1 @@
-gcc bluetooth.c -o bluetooth -l bluetooth
+gcc ../bluetooth.c -o bluetooth -l bluetooth
