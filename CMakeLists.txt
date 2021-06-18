@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project(bluez)
+project(android-linux-bluetooth-rfcomm)
 
 # optimization for dev environments
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -25,34 +25,25 @@ set(BIN_DIR ${PROJECT_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${BIN_DIR})
 
-# tidy project
-option(TIDY_PROJECT "Tidy up and optimize code base" ON)   # default OFF
-if(TIDY_PROJECT)
-    if(UNIX AND NOT APPLE)
-        set(CMAKE_CXX_CLANG_TIDY
-            clang-tidy -p pwd
-            --checks=-*,readability-*,clang-analyzer-*,performance-*)
-    endif()
-    set(CMAKE_CXX_FLAGS "-Wall -Wextra")
-    set(CMAKE_CXX_FLAGS_DEBUG "-g")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
 endif()
 
-# if(NOT CMAKE_BUILD_TYPE)
-#     set(CMAKE_BUILD_TYPE Release)
-# endif()
-
-
 # setup target
-add_executable(bluez
+add_executable(android-linux-bluetooth-rfcomm
     ${PROJECT_DIR}/bluetooth.c
     )
 
+# link bluetooth dependencies
+set(EXTRA_LIBS ${YARP_LIBRARIES})
+list(APPEND EXTRA_LIBS "bluetooth")
+target_link_libraries(android-linux-bluetooth-rfcomm ${EXTRA_LIBS})
+
 # execute target
-option(EXECUTE_TARGET "Execute Project Target" OFF)            # default OFF
+option(EXECUTE_TARGET "Execute Project Target" ON)            # default OFF
 if(EXECUTE_TARGET)
-    add_custom_command(TARGET bluez
+    add_custom_command(TARGET android-linux-bluetooth-rfcomm
         POST_BUILD
-        COMMAND ./bluetooth
+        COMMAND ./build/bin/android-linux-bluetooth-rfcomm
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 endif()
