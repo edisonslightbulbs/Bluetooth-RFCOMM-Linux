@@ -13,9 +13,11 @@
  *     18 June 2021
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <sys/socket.h>
@@ -34,6 +36,13 @@
 #define SESSION sdp_session_t
 
 #define DEVICE_ID "C0:8C:71:61:34:8C" // android device
+
+void delay(unsigned int secs)
+{
+    unsigned int retTime = time(0) + secs; // Get finishing time.
+    while (time(0) < retTime)
+        ; // Loop until it arrives.
+}
 
 int getChannel(BYTE* uuid)
 {
@@ -152,10 +161,12 @@ void server(int channel)
     memset(buf, 0, sizeof(buf));
 
     // read data from the client
-    int bytesRead = (int)read(client, buf, sizeof(buf));
-    if (bytesRead > 0) {
-        printf("received [%s]\n", buf);
-    }
+    // while (true) {
+    //     int bytesRead = (int)read(client, buf, sizeof(buf));
+    //     if (bytesRead > 0) {
+    //         printf("received [%s]\n", buf);
+    //     }
+    // }
 
     // close connection
     close(client);
@@ -172,20 +183,25 @@ void client(int channel)
 
     // set the connection parameters (who to connect to)
     address.rc_family = AF_BLUETOOTH;
-    address.rc_channel = (uint8_t)1;
+    address.rc_channel = channel;
     str2ba(dest, &address.rc_bdaddr);
 
     // connect to server
     int status
         = connect(allocatedSocket, (struct sockaddr*)&address, sizeof(address));
 
-    // send a message
-    if (status == 0) {
-        status = (int)write(allocatedSocket, "hello!", 6);
-    }
+    while (true) {
 
-    if (status < 0)
-        perror("uh oh");
+        // send a message
+        if (status == 0) {
+            status = (int)write(allocatedSocket, "hello!", 6);
+        }
+
+        if (status < 0)
+            perror("uh oh");
+
+        delay(1);
+    }
 
     close(allocatedSocket);
 }
@@ -204,6 +220,8 @@ int main()
         fprintf(stderr, "-- no rfcomm channel found\n");
         exit(0);
     }
+
+    client(channel);
 
     return 0;
 }
