@@ -191,10 +191,9 @@ void client(int channel)
         = connect(allocatedSocket, (struct sockaddr*)&address, sizeof(address));
 
     while (true) {
-
         // send a message
         if (status == 0) {
-            status = (int)write(allocatedSocket, "hello!", 6);
+            write(allocatedSocket, "hello!", 6);
         }
 
         if (status < 0)
