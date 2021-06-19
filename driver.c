@@ -1,24 +1,28 @@
 /**
- * bluetooth.c
- *   1. Determines a service channel
+ * driver.c
+ *   Establishes RFCOMM connection between Linux system and Android device
+ *
+ *   Does byte ordering of multibyte
+ *   integers using functions.
  *
  *   @ref
- *     https://people.csail.mit.edu/albert/bluez-intro/x604.html
  *     https://people.csail.mit.edu/albert/bluez-intro/x502.html
+ *     https://people.csail.mit.edu/albert/bluez-intro/x604.html
+ *
  *   accessed
  *     18 June 2021
  */
 
 #include <stdio.h>
-#include <string.h>
-//#include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-//#include <sys/socket.h>
+#include <sys/socket.h>
 
-#include <bluetooth/sdp.h>
-//#include <bluetooth/rfcomm.h>
 #include <bluetooth/bluetooth.h>
+#include <bluetooth/rfcomm.h>
+#include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
 
 #define UUID uuid_t
@@ -31,7 +35,7 @@
 
 #define DEVICE_ID "C0:8C:71:61:34:8C" // android device
 
-int getServiceChannel(BYTE* uuid)
+int getChannel(BYTE* uuid)
 {
     /*  connect to sdp server: device must be ON but server need not be running
      */
@@ -121,13 +125,78 @@ int getServiceChannel(BYTE* uuid)
     return (channel);
 }
 
+void server(int channel)
+{
+    struct sockaddr_rc localAddress = { 0 }, remoteAddress = { 0 };
+    char buf[1024] = { 0 };
+    socklen_t opt = sizeof(remoteAddress);
+
+    // allocate socket
+    int allocatedSocket = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+
+    localAddress.rc_family = AF_BLUETOOTH;
+    localAddress.rc_bdaddr = *BDADDR_ANY;
+    localAddress.rc_channel = (uint8_t)1;
+    bind(
+        allocatedSocket, (struct sockaddr*)&localAddress, sizeof(localAddress));
+
+    // put socket into listening mode
+    listen(allocatedSocket, 1);
+
+    // accept one connection
+    int client
+        = accept(allocatedSocket, (struct sockaddr*)&remoteAddress, &opt);
+
+    ba2str(&remoteAddress.rc_bdaddr, buf);
+    fprintf(stderr, "accepted connection from %s\n", buf);
+    memset(buf, 0, sizeof(buf));
+
+    // read data from the client
+    int bytesRead = (int)read(client, buf, sizeof(buf));
+    if (bytesRead > 0) {
+        printf("received [%s]\n", buf);
+    }
+
+    // close connection
+    close(client);
+    close(allocatedSocket);
+}
+
+void client(int channel)
+{
+    struct sockaddr_rc address = { 0 };
+    char dest[18] = DEVICE_ID;
+
+    // allocate a socket
+    int allocatedSocket = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+
+    // set the connection parameters (who to connect to)
+    address.rc_family = AF_BLUETOOTH;
+    address.rc_channel = (uint8_t)1;
+    str2ba(dest, &address.rc_bdaddr);
+
+    // connect to server
+    int status
+        = connect(allocatedSocket, (struct sockaddr*)&address, sizeof(address));
+
+    // send a message
+    if (status == 0) {
+        status = (int)write(allocatedSocket, "hello!", 6);
+    }
+
+    if (status < 0)
+        perror("uh oh");
+
+    close(allocatedSocket);
+}
+
 int main()
 {
     /* shared UUID: d8308c4e-9469-4051-8adc-7a2663e415e2 */
     static BYTE DEVICE_UUID[16] = { 0xd8, 0x30, 0x8c, 0x4e, 0x94, 0x69, 0x40,
         0x51, 0x8a, 0xdc, 0x7a, 0x26, 0x63, 0xe4, 0x15, 0xe2 };
 
-    int channel = getServiceChannel(DEVICE_UUID);
+    int channel = getChannel(DEVICE_UUID);
 
     if (channel > 0) {
         printf("-- rfcomm found on channel %d\n", channel);
