@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project(android-linux-bluetooth-rfcomm)
+project(rfcomm)
 
 # optimization for dev environments
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -30,20 +30,20 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # setup target
-add_executable(android-linux-bluetooth-rfcomm
-    ${PROJECT_DIR}/bluetooth.c
+add_executable(rfcomm
+    ${PROJECT_DIR}/driver.c
     )
 
 # link bluetooth dependencies
 set(EXTRA_LIBS ${YARP_LIBRARIES})
 list(APPEND EXTRA_LIBS "bluetooth")
-target_link_libraries(android-linux-bluetooth-rfcomm ${EXTRA_LIBS})
+target_link_libraries(rfcomm ${EXTRA_LIBS})
 
 # execute target
 option(EXECUTE_TARGET "Execute Project Target" ON)            # default OFF
 if(EXECUTE_TARGET)
-    add_custom_command(TARGET android-linux-bluetooth-rfcomm
+    add_custom_command(TARGET rfcomm
         POST_BUILD
-        COMMAND ./build/bin/android-linux-bluetooth-rfcomm
+        COMMAND ./build/bin/rfcomm
         WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
 endif()
