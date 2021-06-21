@@ -5,8 +5,8 @@
 
 /**
  * channel.h
- *   Establishes RFCOMM channel associated with
- *   specified UUID and a device's Bluetooth MAC address.
+ *   Establishes RFCOMM (TX) channel associated with
+ *   a given UUID and MAC address.
  *
  *   @ref
  *     https://people.csail.mit.edu/albert/bluez-intro/x604.html
