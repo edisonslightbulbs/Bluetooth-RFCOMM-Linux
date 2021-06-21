@@ -4,8 +4,14 @@
 #include "client.h"
 #include "server.h"
 
+// configure setup
+//
+#define SETUP_CLIENT 0
+#define SETUP_SERVER 1
+
 int main()
 {
+#if SETUP_CLIENT == 1
     // determine RFCOMM client-server channel for
     // UUID: d8308c4e-9469-4051-8adc-7a2663e415e2
     //  n.b. make sure UUID on the android device
@@ -16,11 +22,16 @@ int main()
     char deviceAddress[18] = "C0:8C:71:61:34:8C"; // android address
     int clientChannel = getChannel(CHANNEL_UUID, deviceAddress);
 
-    // make a client call to a server device
+    // call remote/server device, i.e., as a client
     clientCall(clientChannel, deviceAddress);
+#endif
 
-    // create a local server and open a listening channel
-    setupSever();
-
+#if SETUP_SERVER == 1
+    // create a local server:
+    // listen on channel 20 for a single connection
+    const int CHANNEL_ID = 20;
+    const int NUMBER_OF_CONNECTIONS = 1;
+    setupSever(CHANNEL_ID, NUMBER_OF_CONNECTIONS);
+#endif
     return 0;
 }
