@@ -14,6 +14,6 @@
  *   accessed
  *     18 June 2021
  */
-int getChannel(uint8_t *uuid, char deviceAddress[18]);
+int getChannel(uint8_t* uuid, char deviceAddress[18]);
 
-#endif //CHANNEL_H
+#endif // CHANNEL_H
