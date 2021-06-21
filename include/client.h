@@ -2,15 +2,15 @@
 #define CLIENT_H
 
 /**
- * client.h
- *   Sets up an RFCOMM client for communication over a Bluetooth channel.
+ * clientCall
+ *   Calls a remote server over a Bluetooth RFCOMM channel.
  *
  *   @ref
  *     https://people.csail.mit.edu/albert/bluez-intro/x502.html
  *
  *   accessed
- *     18 June 2021
+ *     05:22 18 June 2021
  */
-void client(int channel, char deviceAddress[18]);
+void clientCall(int channel, char deviceAddress[18]);
 
 #endif
