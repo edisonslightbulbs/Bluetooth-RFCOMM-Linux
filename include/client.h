@@ -3,7 +3,7 @@
 
 /**
  * clientCall
- *   Calls a remote server over a Bluetooth RFCOMM channel.
+ *   Calls a remote server over a RFCOMM (TX) channel.
  *
  *   @ref
  *     https://people.csail.mit.edu/albert/bluez-intro/x502.html
