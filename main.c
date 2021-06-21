@@ -6,8 +6,8 @@
 
 // configure setup
 //
-#define SETUP_CLIENT 0
-#define SETUP_SERVER 1
+#define SETUP_CLIENT 1
+#define SETUP_SERVER 0
 
 int main()
 {
@@ -22,7 +22,7 @@ int main()
     char deviceAddress[18] = "C0:8C:71:61:34:8C"; // android address
     int clientChannel = getChannel(CHANNEL_UUID, deviceAddress);
 
-    // call remote/server device, i.e., as a client
+    // call remote/server device
     clientCall(clientChannel, deviceAddress);
 #endif
 
