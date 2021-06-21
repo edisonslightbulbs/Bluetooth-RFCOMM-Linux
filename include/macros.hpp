@@ -8,6 +8,7 @@
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
 #include <sys/socket.h>
+#include <stdbool.h>
 #include <time.h>
 
 #define UUID uuid_t
@@ -18,7 +19,7 @@
 #define RECORD sdp_record_t
 #define SESSION sdp_session_t
 
-#define RX_TX_DELAY 1
+#define RX_TX_DELAY 0
 
 #if RX_TX_DELAY == 1
 #define SECONDS 1
@@ -29,8 +30,8 @@
         ;                                                                      \
     }
 #else
-#define START_DELAY
-#define STOP_DELAY
+#define BEGIN_DELAY_ENVIRONMENT
+#define END_DELAY_ENVIRONMENT
 #endif
 
 #endif // MACROS_HPP
