@@ -2,16 +2,28 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "macros.hpp"
 #include "client.h"
+#include "macros.hpp"
+
+#define DEBUG_CLIENT 1
+#if DEBUG_CLIENT == 1
+#define START_DELAY while (true) {
+#define STOP_DELAY                                                             \
+    delay(1);                                                                  \
+    }
+#else
+#define START_DELAY
+#define STOP_DELAY
+#endif
 
 void delay(unsigned int secs)
 {
     unsigned int retTime = time(0) + secs;
-    while (time(0) < retTime);
+    while (time(0) < retTime)
+        ;
 }
 
-void client(int channel, char deviceAddress[18])
+void clientCall(int channel, char deviceAddress[18])
 {
     struct sockaddr_rc address = { 0 };
 
@@ -25,15 +37,17 @@ void client(int channel, char deviceAddress[18])
 
     // connect to remote device
     int callStatus, writeStatus;
-    callStatus = connect(allocatedSocket, (struct sockaddr*)&address, sizeof(address));
+    callStatus
+        = connect(allocatedSocket, (struct sockaddr*)&address, sizeof(address));
 
-        if (callStatus == 0) {
-            while (true) {
-                writeStatus = write(allocatedSocket, "hello!", 6);
-                printf("-- sent: \"hello!\" \n");
-                delay(1);
-            }
-        } else { perror("-- failed to connect to remote device"); }
+    if (callStatus == 0) {
+        START_DELAY
+        writeStatus = write(allocatedSocket, "hello!", 6);
+        printf("-- sent: \"hello!\" \n");
+        STOP_DELAY
+    } else {
+        perror("-- failed to connect to remote device");
+    }
 
     close(allocatedSocket);
 }
