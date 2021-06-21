@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "macros.hpp"
 #include "server.h"
@@ -6,7 +7,6 @@
 void setupSever(int channelID, int connectionCount)
 {
     struct sockaddr_rc localAddress = { 0 }, remoteAddress = { 0 };
-    char buf[1024] = { 0 };
     socklen_t opt = sizeof(remoteAddress);
 
     int status;
@@ -48,20 +48,20 @@ void setupSever(int channelID, int connectionCount)
         printf("-- client connected successfully\n");
     }
 
-    // --- ba2str(&remoteAddress.rc_bdaddr, buf);
-    // --- printf("accepted connection from %s\n", buf);
-    // --- memset(buf, 0, sizeof(buf));
+    char buf[1024] = { 0 };
+    ba2str(&remoteAddress.rc_bdaddr, buf);
+    printf("accepted connection from %s\n", buf);
+    memset(buf, 0, sizeof(buf));
 
-    // --- // read data from the client
-    // --- while (true) {
-    // ---     int bytesRead = read(client, buf, sizeof(buf));
-    // ---     if (bytesRead > 0) {
-    // ---         printf("received [%s]\n", buf);
-    // ---     }
-    // ---     delay(1);
-    // --- }
+    // read data from the client
+    BEGIN_DELAY_ENVIRONMENT
+    long bytesRead = read(client, buf, sizeof(buf));
+    if (bytesRead > 0) {
+        printf("received [%s]\n", buf);
+    }
+    END_DELAY_ENVIRONMENT
 
-    // --- // close connection
-    // --- close(client);
-    // --- close(allocatedSocket);
+    // close connection
+    close(client);
+    close(newSocket);
 }
