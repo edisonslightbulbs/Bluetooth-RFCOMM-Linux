@@ -3,7 +3,7 @@
 #include "macros.hpp"
 #include "server.h"
 
-void setupSever()
+void setupSever(int channelID, int connectionCount)
 {
     struct sockaddr_rc localAddress = { 0 }, remoteAddress = { 0 };
     char buf[1024] = { 0 };
@@ -20,7 +20,7 @@ void setupSever()
 
     localAddress.rc_family = AF_BLUETOOTH;
     localAddress.rc_bdaddr = *BDADDR_ANY;
-    localAddress.rc_channel = 20;
+    localAddress.rc_channel = channelID;
 
     // bind communication socket
     status = bind(
@@ -31,14 +31,14 @@ void setupSever()
     }
 
     // listen for new connection
-    status = listen(newSocket, 1);
+    status = listen(newSocket, connectionCount);
     if (status < 0) {
         fprintf(stderr, "-- failed to listen for new connections!\n");
         exit(-1);
     }
 
     // wait for client to connect
-    printf("-- waiting for client to connect...\n");
+    printf("-- waiting for client to connect\n");
     int client = accept(newSocket, (struct sockaddr*)&remoteAddress, &opt);
 
     if (client < 0) {
