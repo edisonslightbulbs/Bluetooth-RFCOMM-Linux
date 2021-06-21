@@ -6,17 +6,17 @@
 // #include <bluetooth/sdp.h>
 // #include <bluetooth/sdp_lib.h>
 
-#include "macros.hpp"
 #include "channel.h"
+#include "macros.hpp"
 
-int getChannel(uint8_t *uuid, char deviceAddress[18])
+int getChannel(uint8_t* uuid, char deviceAddress[18])
 {
     /*  connect to sdp server: device must be ON but server need not be running
      */
     uint8_t address[6];
     str2ba(deviceAddress, (MAC_ADDRESS*)&address);
     SESSION* session
-    = sdp_connect(BDADDR_ANY, (MAC_ADDRESS*)&address, SDP_RETRY_IF_BUSY);
+        = sdp_connect(BDADDR_ANY, (MAC_ADDRESS*)&address, SDP_RETRY_IF_BUSY);
     if (!session) {
         fprintf(stderr, "-- can't connect to sdp server! \n");
         exit(-1);
@@ -32,7 +32,7 @@ int getChannel(uint8_t *uuid, char deviceAddress[18])
 
     /* search for records: server must be running */
     int success = sdp_service_search_attr_req(
-            session, searchList, SDP_ATTR_REQ_RANGE, attrIdList, &responseList);
+        session, searchList, SDP_ATTR_REQ_RANGE, attrIdList, &responseList);
     if (success) {
         fprintf(stderr, "-- search failed! \n");
         exit(-1);
@@ -70,18 +70,18 @@ int getChannel(uint8_t *uuid, char deviceAddress[18])
                 while (d) {
                     dtd = d->dtd;
                     switch (dtd) {
-                        case SDP_UUID16:
-                        case SDP_UUID32:
-                        case SDP_UUID128:
-                            protocolCount = sdp_uuid_to_proto(&d->val.uuid);
-                            break;
-                        case SDP_UINT8:
-                            if (protocolCount == RFCOMM_UUID) {
-                                channel = d->val.uint8; // save channel id
-                            }
-                            break;
-                        default:
-                            break;
+                    case SDP_UUID16:
+                    case SDP_UUID32:
+                    case SDP_UUID128:
+                        protocolCount = sdp_uuid_to_proto(&d->val.uuid);
+                        break;
+                    case SDP_UINT8:
+                        if (protocolCount == RFCOMM_UUID) {
+                            channel = d->val.uint8; // save channel id
+                        }
+                        break;
+                    default:
+                        break;
                     }
                     d = d->next; // to next data unit
                 }
